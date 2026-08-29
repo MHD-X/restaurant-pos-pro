@@ -142,3 +142,224 @@
     color: var(--color-foreground);
   }
 }
+
+
+/* ============================================
+   نظام نقاط البيع — أنماط عامة وطباعة
+   ============================================ */
+
+@theme {
+  --breakpoint-xs: 30rem;
+}
+
+@utility animate-shake { animation: shake 0.3s ease-in-out; }
+@utility animate-fade-in { animation: fadeIn 0.2s ease-out; }
+@utility animate-slide-up { animation: slideUp 0.25s ease-out; }
+@utility no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-8px); }
+  75% { transform: translateX(8px); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  font-family: 'Segoe UI', 'Tahoma', system-ui, -apple-system, sans-serif;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Remove number input spinner arrows */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+  appearance: none;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+  text-align: right;
+}
+
+/* ============================================
+   🖨️ إعدادات الطباعة للفاتورة الحرارية 80mm
+   ============================================ */
+@media print {
+  /* ✅ إخفاء العناصر غير المرغوب فيها */
+  .no-print,
+  .modal-backdrop,
+  .modal-header,
+  .modal-footer,
+  /* ✅ تم حذف modal-overlay من هنا */
+  button:not(.print-btn),
+  .print-wrapper > *:not(.print-area) {
+    display: none !important;
+  }
+
+  @page {
+    size: 80mm auto;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    width: 80mm;
+    margin: 0;
+    padding: 0;
+    background: white !important;
+    font-size: 11px;
+    line-height: 1.4;
+  }
+
+  .print-area {
+    width: 80mm !important;
+    max-width: 80mm !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 2mm 3mm !important;
+    background: white !important;
+    color: black !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    font-size: 11px;
+    line-height: 1.35;
+    font-family: 'Courier New', monospace;
+  }
+
+  .print-area,
+  .print-area * {
+    visibility: visible !important;
+  }
+
+  body * {
+    visibility: hidden !important;
+  }
+
+  .print-area,
+  .print-area * {
+    visibility: visible !important;
+  }
+
+  .modal-container {
+    position: static !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    width: auto !important;
+    max-width: none !important;
+  }
+
+  .modal-overlay {
+    position: static !important;
+    background: transparent !important;
+    padding: 0 !important;
+    /* ✅ display غير محددة، فتظهر بشكل طبيعي */
+  }
+
+  .print-wrapper {
+    visibility: visible !important;
+    position: static !important;
+  }
+
+  .print-area * {
+    page-break-inside: avoid;
+    page-break-after: avoid;
+  }
+
+  .print-area .bg-gray-50,
+  .print-area .bg-gray-100 {
+    background: white !important;
+  }
+
+  .print-area table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .print-area td,
+  .print-area th {
+    padding: 2px 0;
+    font-size: 10px;
+  }
+
+  .print-area .font-bold {
+    font-weight: 700 !important;
+  }
+
+  .print-area .text-xs {
+    font-size: 9px !important;
+  }
+
+  .print-area .text-sm {
+    font-size: 10px !important;
+  }
+
+  .print-area .text-base {
+    font-size: 11px !important;
+  }
+
+  .print-area .text-lg {
+    font-size: 13px !important;
+  }
+
+  .print-area .border-t {
+    border-top: 1px dashed #999 !important;
+  }
+
+  .print-area .border-b {
+    border-bottom: 1px dashed #999 !important;
+  }
+
+  .print-area .border-2 {
+    border: 2px solid #000 !important;
+  }
+
+  .print-area .border-gray-800 {
+    border-color: #000 !important;
+  }
+
+  .print-area .border-dashed {
+    border-style: dashed !important;
+  }
+
+  .print-area .border-dotted {
+    border-style: dotted !important;
+  }
+
+  .print-area .border-gray-400 {
+    border-color: #999 !important;
+  }
+
+  .print-area .border-gray-300 {
+    border-color: #ccc !important;
+  }
+
+  .print-area .border-gray-200 {
+    border-color: #ddd !important;
+  }
+}
