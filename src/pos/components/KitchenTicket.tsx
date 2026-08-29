@@ -3,6 +3,7 @@ import { ORDER_TYPE_LABELS } from '@/pos/types';
 import { formatMoney } from '@/pos/utils/storage';
 import { Modal, Button } from '@/pos/components/ui/Modal';
 import { Printer, X } from 'lucide-react';
+import { printHtml, buildKitchenTicketHtml } from '@/pos/utils/print';
 
 interface KitchenTicketProps {
   order: Order;
@@ -19,151 +20,14 @@ export function KitchenTicket({ order, onClose, onPrinted }: KitchenTicketProps)
   const totalHeight = headerHeight + (itemsCount * lineHeight) + footerHeight;
   const paperHeight = Math.max(300, totalHeight);
 
-  // ✅ بناء HTML التذكرة
-  const buildTicketHTML = () => {
-    return `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta charset="UTF-8">
-          <title>تذكرة مطبخ #${order.number}</title>
-          <style>
-            @page {
-              size: 80mm ${paperHeight}px;
-              margin: 0;
-              padding: 0;
-              orientation: portrait;
-            }
-            * {
-              margin: 0;
-              padding: 0;
-              box-sizing: border-box;
-            }
-            html, body {
-              width: 80mm;
-              height: ${paperHeight}px;
-              margin: 0;
-              padding: 0;
-              background: white;
-            }
-            body {
-              width: 80mm;
-              height: ${paperHeight}px;
-              margin: 0;
-              padding: 5mm 4mm;
-              font-family: 'Courier New', monospace;
-              font-size: 13px;
-              line-height: 1.5;
-              direction: rtl;
-              background: white;
-              display: flex;
-              flex-direction: column;
-              justify-content: space-between;
-            }
-            .header {
-              text-align: center;
-              border-bottom: 3px solid #000;
-              padding-bottom: 8px;
-              margin-bottom: 10px;
-            }
-            .title {
-              font-size: 22px;
-              font-weight: bold;
-            }
-            .sub {
-              font-size: 13px;
-              margin: 3px 0;
-            }
-            table {
-              width: 100%;
-              border-collapse: collapse;
-              margin: 6px 0;
-            }
-            td {
-              padding: 6px 0;
-              border-bottom: 1px dotted #999;
-              font-size: 14px;
-            }
-            .right { text-align: right; }
-            .center { text-align: center; }
-            .footer {
-              border-top: 3px solid #000;
-              margin-top: 10px;
-              padding-top: 10px;
-              text-align: center;
-              font-size: 13px;
-            }
-            .note {
-              color: #e67e22;
-              font-size: 12px;
-              margin: 4px 0;
-              padding: 4px;
-              border: 1px dashed #e67e22;
-              border-radius: 4px;
-            }
-          </style>
-        </head>
-        <body>
-          <div>
-            <div class="header">
-              <div class="title">🍽️ تذكرة مطبخ</div>
-              <div class="sub">طلب #${order.number}</div>
-              <div class="sub">${new Date(order.createdAt).toLocaleTimeString('ar-EG')}</div>
-              ${order.tableLabel ? `<div class="sub">طاولة: ${order.tableLabel}</div>` : ''}
-              ${order.type === 'delivery' ? `<div class="sub">📍 توصيل</div>` : ''}
-              ${order.type === 'dine-in' ? `<div class="sub">🏠 صالة</div>` : ''}
-              ${order.type === 'takeaway' ? `<div class="sub">🛍️ سفري</div>` : ''}
-            </div>
-
-            <table>
-              <tr>
-                <td class="right"><strong>المنتج</strong></td>
-                <td class="center"><strong>الكمية</strong></td>
-              </tr>
-              ${order.items.map(item => `
-                <tr>
-                  <td class="right">${item.name}</td>
-                  <td class="center">${item.qty}</td>
-                </tr>
-                ${item.note ? `<tr><td colspan="2" class="note">📝 ${item.note}</td></tr>` : ''}
-              `).join('')}
-            </table>
-          </div>
-
-          <div class="footer">
-            ${order.deliveryFee > 0 ? `رسوم التوصيل: ${order.deliveryFee.toFixed(2)} ر.س<br>` : ''}
-            وقت التجهيز: 15 دقيقة
-          </div>
-
-          <script>
-            window.onload = function() {
-              setTimeout(function() {
-                window.print();
-                setTimeout(function() {
-                  window.close();
-                }, 500);
-              }, 300);
-            };
-          </script>
-        </body>
-      </html>
-    `;
-  };
-
-  // ✅ طباعة مباشرة
   const handlePrint = () => {
-    const printWindow = window.open('', '_blank', 'width=400,height=600,menubar=no,toolbar=no,location=no,status=no');
-    if (printWindow) {
-      printWindow.document.write(buildTicketHTML());
-      printWindow.document.close();
-      printWindow.focus();
-      
-      // ✅ إغلاق نافذة المعاينة بعد الطباعة
-      if (onPrinted) onPrinted();
-      onClose();
-    } else {
-      alert('الرجاء السماح للنوافذ المنبثقة');
+    const res = printHtml(buildKitchenTicketHtml(order));
+    if (!res.success) {
+      alert(res.error ?? 'تعذر فتح نافذة الطباعة');
+      return;
     }
+    onPrinted?.();
+    onClose();
   };
 
   return (

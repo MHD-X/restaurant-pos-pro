@@ -4,6 +4,7 @@ import { formatMoney, formatDateTime } from '@/pos/utils/storage';
 import { useSettings } from '@/pos/context/SettingsContext';
 import { Modal, Button } from '@/pos/components/ui/Modal';
 import { Printer, X } from 'lucide-react';
+import { printHtml, buildReceiptHtml } from '@/pos/utils/print';
 
 interface ReceiptProps {
   order: Order;
@@ -41,9 +42,10 @@ export function Receipt({ order, onClose, onPrint, isPreview = false }: ReceiptP
   const handlePrint = () => {
     if (onPrint) {
       onPrint();
-    } else {
-      window.print();
+      return;
     }
+    const res = printHtml(buildReceiptHtml(order, settings));
+    if (!res.success) alert(res.error);
   };
 
   const restaurantName = r.restaurantName || branding.name || 'مطعم أسايل';
