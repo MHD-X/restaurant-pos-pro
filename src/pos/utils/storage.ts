@@ -1,5 +1,6 @@
 import type { Settings, OrderType, AuditEntry, UserRole } from '@/pos/types';
 import { DEFAULT_PER_ORDER_TYPE } from '@/pos/types';
+import { demoCategories, demoProducts, demoTags, demoZones } from '@/pos/utils/demoData';
 
 export const STORAGE_KEY = 'foodics_pos_settings_v2';
 
