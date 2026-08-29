@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { View } from '@/pos/types';
 import { useSettings } from '@/pos/context/SettingsContext';
 import {
@@ -178,6 +178,19 @@ const NavGroupItem = ({
 export function Sidebar({ view, onNavigate }: SidebarProps) {
   const { settings } = useSettings();
   const [collapsed, setCollapsed] = useState(false);
+
+  // استرجاع حالة طي القائمة الجانبية
+  useEffect(() => {
+    try {
+      setCollapsed(localStorage.getItem('pos.sidebarCollapsed') === '1');
+    } catch { /* ignore */ }
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('pos.sidebarCollapsed', collapsed ? '1' : '0');
+    } catch { /* ignore */ }
+  }, [collapsed]);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleNavigate = (v: View) => {
