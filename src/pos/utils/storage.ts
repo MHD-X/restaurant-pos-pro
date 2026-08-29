@@ -43,7 +43,12 @@ export const defaultSettings: Settings = {
   modifierGroups: [],
   deliveryZones: demoZones,
   dineInAreas: [
-    { id: 'area-main', name: 'الصالة الرئيسية', tables: ['1', '2', '3', '4', '5', '6'] },
+    { id: 'area-1', name: 'طاولة 1' },
+    { id: 'area-2', name: 'طاولة 2' },
+    { id: 'area-3', name: 'طاولة 3' },
+    { id: 'area-4', name: 'طاولة 4' },
+    { id: 'area-5', name: 'طاولة 5' },
+    { id: 'area-6', name: 'طاولة 6' },
   ],
   tags: demoTags,
   paymentMethods: [
