@@ -7,9 +7,9 @@ export const STORAGE_KEY = 'foodics_pos_settings_v2';
 export const defaultSettings: Settings = {
   managerPin: '7070',
   branding: {
-    name: '',
-    address: '',
-    phones: '',
+    name: 'مطعم أصايل',
+    address: 'شارع الجمهورية - وسط البلد',
+    phones: '01000000000',
     logo: undefined,
   },
   printers: {
@@ -17,10 +17,10 @@ export const defaultSettings: Settings = {
     printMode: 'preview',
   },
   receiptSettings: {
-    restaurantName: '',
-    subtitle: '',
-    address: '',
-    phones: '',
+    restaurantName: 'مطعم أصايل',
+    subtitle: 'مشويات ومأكولات شرقية',
+    address: 'شارع الجمهورية - وسط البلد',
+    phones: '01000000000',
     taxId: '',
     footer: 'شكراً لزيارتكم - نتمنى لكم يوماً سعيداً',
     showCashierName: true,
@@ -38,12 +38,14 @@ export const defaultSettings: Settings = {
     applyVatByDefault: true,
     perOrderType: { ...DEFAULT_PER_ORDER_TYPE },
   },
-  categories: [],
-  products: [],
+  categories: demoCategories,
+  products: demoProducts,
   modifierGroups: [],
-  deliveryZones: [],
-  dineInAreas: [],
-  tags: [],
+  deliveryZones: demoZones,
+  dineInAreas: [
+    { id: 'area-main', name: 'الصالة الرئيسية', tables: ['1', '2', '3', '4', '5', '6'] },
+  ],
+  tags: demoTags,
   paymentMethods: [
     'cash', 'visa', 'talabat-cash', 'talabat-visa', 'rappit', 'petrol-card',
   ],
