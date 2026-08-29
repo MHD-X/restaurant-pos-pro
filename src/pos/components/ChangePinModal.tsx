@@ -41,7 +41,7 @@ export function ChangePinModal({ open, onClose, target, skipCurrent = false }: C
       setError(res.error || 'تعذر تغيير الرمز');
       return;
     }
-    toast?.show?.(`تم تغيير رمز ${LABELS[target]} بنجاح`, 'success');
+    toast.showToast(`تم تغيير رمز ${LABELS[target]} بنجاح`, 'success');
     reset();
     onClose();
   };
