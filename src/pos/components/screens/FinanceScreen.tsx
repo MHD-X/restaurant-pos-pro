@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { useSettings } from '@/context/SettingsContext';
-import type { FinancialSettings, OrderType, OrderTypeFinancials } from '@/types';
-import { ORDER_TYPE_LABELS } from '@/types';
-import { formatMoney } from '@/utils/storage';
-import { Button, Input, Field, Select } from '@/components/ui/Modal';
+import { useSettings } from '@/pos/context/SettingsContext';
+import type { FinancialSettings, OrderType, OrderTypeFinancials } from '@/pos/types';
+import { ORDER_TYPE_LABELS } from '@/pos/types';
+import { formatMoney } from '@/pos/utils/storage';
+import { Button, Input, Field, Select } from '@/pos/components/ui/Modal';
 import {
   Wallet, Percent, Save, Check, Calculator, Truck,
   Utensils, Store, Bike, ShoppingBag,

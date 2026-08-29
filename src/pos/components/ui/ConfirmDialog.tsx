@@ -1,4 +1,4 @@
-import { Modal, Button } from '@/components/ui/Modal';
+import { Modal, Button } from '@/pos/components/ui/Modal';
 import { AlertTriangle } from 'lucide-react';
 
 interface ConfirmDialogProps {

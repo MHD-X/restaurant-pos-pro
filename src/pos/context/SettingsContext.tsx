@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';
-import type { Settings } from '@/types';
-import { loadSettings, saveSettings } from '@/utils/storage';
+import type { Settings } from '@/pos/types';
+import { loadSettings, saveSettings } from '@/pos/utils/storage';
 
 interface SettingsContextValue {
   settings: Settings;

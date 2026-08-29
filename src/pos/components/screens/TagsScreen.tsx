@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { useSettings } from '@/context/SettingsContext';
-import type { Tag } from '@/types';
-import { TAG_COLORS } from '@/types';
-import { uid } from '@/utils/storage';
-import { Modal, Button, Input, Field, Select } from '@/components/ui/Modal';
-import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { useSettings } from '@/pos/context/SettingsContext';
+import type { Tag } from '@/pos/types';
+import { TAG_COLORS } from '@/pos/types';
+import { uid } from '@/pos/utils/storage';
+import { Modal, Button, Input, Field, Select } from '@/pos/components/ui/Modal';
+import { ConfirmDialog } from '@/pos/components/ui/ConfirmDialog';
 import {
   Tag as TagIcon, Plus, Pencil, Trash2, Link2, X,
 } from 'lucide-react';

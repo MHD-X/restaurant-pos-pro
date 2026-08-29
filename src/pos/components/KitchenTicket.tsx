@@ -1,7 +1,7 @@
-import type { Order } from '@/types';
-import { ORDER_TYPE_LABELS } from '@/types';
-import { formatMoney } from '@/utils/storage';
-import { Modal, Button } from '@/components/ui/Modal';
+import type { Order } from '@/pos/types';
+import { ORDER_TYPE_LABELS } from '@/pos/types';
+import { formatMoney } from '@/pos/utils/storage';
+import { Modal, Button } from '@/pos/components/ui/Modal';
 import { Printer, X } from 'lucide-react';
 
 interface KitchenTicketProps {

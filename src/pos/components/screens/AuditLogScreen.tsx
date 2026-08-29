@@ -1,8 +1,8 @@
 import { useState, useMemo } from 'react';
-import { useSettings } from '@/context/SettingsContext';
-import type { UserRole } from '@/types';
-import { formatDateTime, exportCSV } from '@/utils/storage';
-import { Button, Input, Select } from '@/components/ui/Modal';
+import { useSettings } from '@/pos/context/SettingsContext';
+import type { UserRole } from '@/pos/types';
+import { formatDateTime, exportCSV } from '@/pos/utils/storage';
+import { Button, Input, Select } from '@/pos/components/ui/Modal';
 import { Shield, Download, Search } from 'lucide-react';
 
 const ROLE_LABELS: Record<UserRole, string> = {

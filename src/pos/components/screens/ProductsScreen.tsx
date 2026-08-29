@@ -1,10 +1,10 @@
 import { useState, useMemo, useRef } from 'react';
-import { useSettings } from '@/context/SettingsContext';
-import type { Product, Category, ProductPrice } from '@/types';
-import { CATEGORY_COLORS } from '@/types';
-import { uid, formatMoney, fileToDataUrl, getProductPrice } from '@/utils/storage';
-import { Modal, Button, Input, Select, Field } from '@/components/ui/Modal';
-import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { useSettings } from '@/pos/context/SettingsContext';
+import type { Product, Category, ProductPrice } from '@/pos/types';
+import { CATEGORY_COLORS } from '@/pos/types';
+import { uid, formatMoney, fileToDataUrl, getProductPrice } from '@/pos/utils/storage';
+import { Modal, Button, Input, Select, Field } from '@/pos/components/ui/Modal';
+import { ConfirmDialog } from '@/pos/components/ui/ConfirmDialog';
 import {
   Plus, Pencil, Trash2, Utensils, ImagePlus, Search, FolderPlus, X,
 } from 'lucide-react';

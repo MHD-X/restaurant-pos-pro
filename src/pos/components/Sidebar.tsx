@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import type { View } from '@/types';
-import { useSettings } from '@/context/SettingsContext';
+import type { View } from '@/pos/types';
+import { useSettings } from '@/pos/context/SettingsContext';
 import {
   ShoppingCart,
   UtensilsCrossed,

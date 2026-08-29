@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
-import { useSettings } from '@/context/SettingsContext';
-import { fileToDataUrl } from '@/utils/storage';
-import { Button, Input, Field, TextArea } from '@/components/ui/Modal';
+import { useSettings } from '@/pos/context/SettingsContext';
+import { fileToDataUrl } from '@/pos/utils/storage';
+import { Button, Input, Field, TextArea } from '@/pos/components/ui/Modal';
 import { Store, ImagePlus, Save, Check, User, Lock } from 'lucide-react';
 
 export function BrandingScreen() {

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Delete, Lock } from 'lucide-react';
-import { Button } from '@/components/ui/Modal';
+import { Button } from '@/pos/components/ui/Modal';
 
 interface PinPadProps {
   expectedPin: string;

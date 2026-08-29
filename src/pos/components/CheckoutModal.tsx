@@ -1,8 +1,8 @@
 import { useState, useMemo } from 'react';
-import type { PaymentMethod, FinancialSettings } from '@/types';
-import { PAYMENT_METHOD_LABELS } from '@/types';
-import { formatMoney, computeServiceCharge, computeVat } from '@/utils/storage';
-import { Modal, Button, Input } from '@/components/ui/Modal';
+import type { PaymentMethod, FinancialSettings } from '@/pos/types';
+import { PAYMENT_METHOD_LABELS } from '@/pos/types';
+import { formatMoney, computeServiceCharge, computeVat } from '@/pos/utils/storage';
+import { Modal, Button, Input } from '@/pos/components/ui/Modal';
 import {
   Banknote, CreditCard, Fuel, Truck,
   CheckCircle2, RefreshCw,

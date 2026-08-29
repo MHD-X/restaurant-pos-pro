@@ -1,5 +1,5 @@
-import type { Settings, OrderType, AuditEntry, UserRole } from '@/types';
-import { DEFAULT_PER_ORDER_TYPE } from '@/types';
+import type { Settings, OrderType, AuditEntry, UserRole } from '@/pos/types';
+import { DEFAULT_PER_ORDER_TYPE } from '@/pos/types';
 
 export const STORAGE_KEY = 'foodics_pos_settings_v2';
 

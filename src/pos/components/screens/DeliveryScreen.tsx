@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { useSettings } from '@/context/SettingsContext';
-import type { DeliveryZone, DineInArea } from '@/types';
-import { uid, formatMoney } from '@/utils/storage';
-import { Button, Input, Field, Modal } from '@/components/ui/Modal';
-import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { useSettings } from '@/pos/context/SettingsContext';
+import type { DeliveryZone, DineInArea } from '@/pos/types';
+import { uid, formatMoney } from '@/pos/utils/storage';
+import { Button, Input, Field, Modal } from '@/pos/components/ui/Modal';
+import { ConfirmDialog } from '@/pos/components/ui/ConfirmDialog';
 import { Truck, Plus, Pencil, Trash2, MapPin, LayoutGrid } from 'lucide-react';
 
 export function DeliveryScreen() {

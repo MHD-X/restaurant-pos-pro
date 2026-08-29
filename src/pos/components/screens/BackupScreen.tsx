@@ -1,9 +1,9 @@
 import { useRef, useState } from 'react';
-import { useSettings } from '@/context/SettingsContext';
-import type { Settings } from '@/types';
-import { exportSettingsJSON, exportCSV, formatDateTime, formatMoney } from '@/utils/storage';
-import { Button } from '@/components/ui/Modal';
-import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { useSettings } from '@/pos/context/SettingsContext';
+import type { Settings } from '@/pos/types';
+import { exportSettingsJSON, exportCSV, formatDateTime, formatMoney } from '@/pos/utils/storage';
+import { Button } from '@/pos/components/ui/Modal';
+import { ConfirmDialog } from '@/pos/components/ui/ConfirmDialog';
 import { DatabaseBackup, Download, Upload, FileSpreadsheet, AlertTriangle } from 'lucide-react';
 
 export function BackupScreen() {

@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { useSettings } from '@/context/SettingsContext';
-import type { ModifierGroup, ModifierOption } from '@/types';
-import { uid } from '@/utils/storage';
-import { Modal, Button, Input, Field } from '@/components/ui/Modal';
-import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { useSettings } from '@/pos/context/SettingsContext';
+import type { ModifierGroup, ModifierOption } from '@/pos/types';
+import { uid } from '@/pos/utils/storage';
+import { Modal, Button, Input, Field } from '@/pos/components/ui/Modal';
+import { ConfirmDialog } from '@/pos/components/ui/ConfirmDialog';
 import {
   SlidersHorizontal, Plus, Pencil, Trash2, X, Settings2,
 } from 'lucide-react';

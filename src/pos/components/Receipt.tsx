@@ -1,8 +1,8 @@
-import type { Order } from '@/types';
-import { ORDER_TYPE_LABELS, PAYMENT_METHOD_LABELS } from '@/types';
-import { formatMoney, formatDateTime } from '@/utils/storage';
-import { useSettings } from '@/context/SettingsContext';
-import { Modal, Button } from '@/components/ui/Modal';
+import type { Order } from '@/pos/types';
+import { ORDER_TYPE_LABELS, PAYMENT_METHOD_LABELS } from '@/pos/types';
+import { formatMoney, formatDateTime } from '@/pos/utils/storage';
+import { useSettings } from '@/pos/context/SettingsContext';
+import { Modal, Button } from '@/pos/components/ui/Modal';
 import { Printer, X } from 'lucide-react';
 
 interface ReceiptProps {

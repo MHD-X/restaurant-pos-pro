@@ -1,11 +1,11 @@
 import { useState, useMemo } from 'react';
-import { useSettings } from '@/context/SettingsContext';
-import type { Shift, Order, CashEntry } from '@/types';
-import { PAYMENT_METHOD_LABELS } from '@/types';
-import { uid, formatMoney, formatDateTime, addAuditEntry } from '@/utils/storage';
-import { Button, Input, Field, Select, Modal } from '@/components/ui/Modal';
-import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
-import { PinPad } from '@/components/PinPad';
+import { useSettings } from '@/pos/context/SettingsContext';
+import type { Shift, Order, CashEntry } from '@/pos/types';
+import { PAYMENT_METHOD_LABELS } from '@/pos/types';
+import { uid, formatMoney, formatDateTime, addAuditEntry } from '@/pos/utils/storage';
+import { Button, Input, Field, Select, Modal } from '@/pos/components/ui/Modal';
+import { ConfirmDialog } from '@/pos/components/ui/ConfirmDialog';
+import { PinPad } from '@/pos/components/PinPad';
 import {
   Clock, Play, Square, User, Wallet,
   ArrowRightLeft, ArrowDownCircle, ArrowUpCircle, Receipt,

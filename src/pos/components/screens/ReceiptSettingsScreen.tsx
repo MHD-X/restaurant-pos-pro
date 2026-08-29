@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { useSettings } from '@/context/SettingsContext';
-import type { ReceiptSettings } from '@/types';
-import { Button, Input, Field, TextArea } from '@/components/ui/Modal';
+import { useSettings } from '@/pos/context/SettingsContext';
+import type { ReceiptSettings } from '@/pos/types';
+import { Button, Input, Field, TextArea } from '@/pos/components/ui/Modal';
 import { Save, Check, Receipt as ReceiptIcon, Eye, EyeOff } from 'lucide-react';
 
 export function ReceiptSettingsScreen() {

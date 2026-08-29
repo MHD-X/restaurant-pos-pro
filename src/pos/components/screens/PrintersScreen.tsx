@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { useSettings } from '@/context/SettingsContext';
-import { Button, Select } from '@/components/ui/Modal';
+import { useSettings } from '@/pos/context/SettingsContext';
+import { Button, Select } from '@/pos/components/ui/Modal';
 import { Printer, Save, Check, Receipt, Monitor, Info } from 'lucide-react';
-import type { PrintMode } from '@/types';
+import type { PrintMode } from '@/pos/types';
 
 export function PrintersScreen() {
   const { settings, update } = useSettings();

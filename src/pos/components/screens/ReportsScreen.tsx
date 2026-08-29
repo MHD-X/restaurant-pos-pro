@@ -1,9 +1,9 @@
 import { useState, useMemo } from 'react';
-import { useSettings } from '@/context/SettingsContext';
-import type { Order } from '@/types';
-import { PAYMENT_METHOD_LABELS, ORDER_TYPE_LABELS } from '@/types';
-import { formatMoney, formatDateTime, todayISODate, formatDate } from '@/utils/storage';
-import { Button, Input } from '@/components/ui/Modal';
+import { useSettings } from '@/pos/context/SettingsContext';
+import type { Order } from '@/pos/types';
+import { PAYMENT_METHOD_LABELS, ORDER_TYPE_LABELS } from '@/pos/types';
+import { formatMoney, formatDateTime, todayISODate, formatDate } from '@/pos/utils/storage';
+import { Button, Input } from '@/pos/components/ui/Modal';
 import {
   FileBarChart, Calendar, Printer, TrendingUp, Wallet,
   Bike, XCircle, ShoppingBag, Receipt,

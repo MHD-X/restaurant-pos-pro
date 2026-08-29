@@ -1,20 +1,20 @@
 import { useState, useMemo } from 'react';
-import { useSettings } from '@/context/SettingsContext';
-import type { CartItem, OrderType, PaymentMethod, Order, ActiveOrder, CustomerInfo } from '@/types';
-import { ORDER_TYPE_LABELS } from '@/types';
-import { uid, formatMoney, getProductPrice, addAuditEntry } from '@/utils/storage';
+import { useSettings } from '@/pos/context/SettingsContext';
+import type { CartItem, OrderType, PaymentMethod, Order, ActiveOrder, CustomerInfo } from '@/pos/types';
+import { ORDER_TYPE_LABELS } from '@/pos/types';
+import { uid, formatMoney, getProductPrice, addAuditEntry } from '@/pos/utils/storage';
 import {
   Printer, ChefHat, XCircle, Percent, StickyNote, Tag, MoreHorizontal,
   Search, Plus, Minus, Trash2, ShoppingCart, CreditCard,
   Bike, Store, Utensils, ShoppingBag, FilePlus, Layers,
   AlertCircle, CheckCircle2, User,
 } from 'lucide-react';
-import { Modal, Button, Input, TextArea, Select } from '@/components/ui/Modal';
-import { PinPad } from '@/components/PinPad';
-import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
-import { CheckoutModal } from '@/components/CheckoutModal';
-import { Receipt } from '@/components/Receipt';
-import { KitchenTicket } from '@/components/KitchenTicket';
+import { Modal, Button, Input, TextArea, Select } from '@/pos/components/ui/Modal';
+import { PinPad } from '@/pos/components/PinPad';
+import { ConfirmDialog } from '@/pos/components/ui/ConfirmDialog';
+import { CheckoutModal } from '@/pos/components/CheckoutModal';
+import { Receipt } from '@/pos/components/Receipt';
+import { KitchenTicket } from '@/pos/components/KitchenTicket';
 
 export function PosScreen() {
   const { settings, update } = useSettings();
