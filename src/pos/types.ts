@@ -154,7 +154,7 @@ export interface Order {
   refunded?: boolean;
   refundAmount?: number;
   refundReason?: string;
-  status: 'open' | 'sent' | 'completed';
+  status: 'open' | 'sent' | 'completed' | 'preview';
 }
 
 export interface CashEntry {

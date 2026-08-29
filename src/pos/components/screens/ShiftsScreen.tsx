@@ -96,7 +96,7 @@ export function ShiftsScreen() {
     const actual = parseFloat(actualCash) || 0;
     const variance = actual - shiftStats.expectedCash;
     update((prev) => {
-      let s = {
+      let s: Settings = {
         ...prev,
         shifts: prev.shifts.map((sh) =>
           sh.id === endShift.id
