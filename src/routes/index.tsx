@@ -1,24 +1,48 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { lazy, Suspense, useEffect, useState } from "react";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
+const PosApp = lazy(() =>
+  import("@/pos/PosApp").then((m) => ({ default: m.PosApp })),
+);
+
+const TITLE = "أسايل POS — نظام نقاط بيع للمطاعم";
+const DESC =
+  "نظام نقاط بيع متكامل للمطاعم: طلبات، طباعة فواتير حرارية 80mm، تذاكر مطبخ، ورديات، تقارير وإدارة مستخدمين.";
+
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: TITLE },
+      { name: "description", content: DESC },
+      { property: "og:title", content: TITLE },
+      { property: "og:description", content: DESC },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
 function Index() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  if (!mounted) return <Loading />;
+
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <Suspense fallback={<Loading />}>
+      <PosApp />
+    </Suspense>
+  );
+}
+
+function Loading() {
+  return (
+    <div className="flex h-screen items-center justify-center bg-gray-100" dir="rtl">
+      <div className="flex flex-col items-center gap-3">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-slate-300 border-t-blue-600" />
+        <p className="text-sm font-semibold text-slate-600">جارٍ تحميل نظام الكاشير…</p>
+      </div>
     </div>
   );
 }
