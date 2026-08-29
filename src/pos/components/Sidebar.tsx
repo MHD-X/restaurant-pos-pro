@@ -19,14 +19,21 @@ import {
   PanelRightClose,
   PanelRightOpen,
   Receipt,
-  Menu,
   X,
   ChevronDown,
+  KeyRound,
+  LogOut,
+  ShieldCheck,
 } from 'lucide-react';
 
 interface SidebarProps {
   view: View;
   onNavigate: (v: View) => void;
+  mobileOpen: boolean;
+  onMobileOpenChange: (open: boolean) => void;
+  onChangeMyPin: () => void;
+  onResetCashierPin: () => void;
+  onLogout: () => void;
 }
 
 interface NavGroup {
@@ -175,7 +182,15 @@ const NavGroupItem = ({
   );
 };
 
-export function Sidebar({ view, onNavigate }: SidebarProps) {
+export function Sidebar({
+  view,
+  onNavigate,
+  mobileOpen,
+  onMobileOpenChange,
+  onChangeMyPin,
+  onResetCashierPin,
+  onLogout,
+}: SidebarProps) {
   const { settings } = useSettings();
   const [collapsed, setCollapsed] = useState(false);
 
@@ -191,30 +206,20 @@ export function Sidebar({ view, onNavigate }: SidebarProps) {
       localStorage.setItem('pos.sidebarCollapsed', collapsed ? '1' : '0');
     } catch { /* ignore */ }
   }, [collapsed]);
-  const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleNavigate = (v: View) => {
     onNavigate(v);
-    setMobileOpen(false);
+    onMobileOpenChange(false);
   };
 
   return (
     <>
-      {/* زر القائمة للجوال - يظهر على الشاشات الصغيرة */}
-      <button
-        onClick={() => setMobileOpen(true)}
-        className="lg:hidden fixed top-4 left-4 z-50 w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center shadow-xl hover:bg-slate-800 active:scale-95 transition-all duration-200 border border-slate-700"
-        aria-label="فتح القائمة"
-      >
-        <Menu size={24} />
-      </button>
-
       {/* قائمة الجوال (Drawer) */}
       {mobileOpen && (
-        <div className="lg:hidden fixed inset-0 z-50 flex">
+        <div className="md:hidden fixed inset-0 z-50 flex">
           <div
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            onClick={() => setMobileOpen(false)}
+            onClick={() => onMobileOpenChange(false)}
           />
           <aside className="relative w-[280px] bg-slate-900 text-white flex flex-col flex-shrink-0 h-full animate-slide-up shadow-2xl mx-2 rounded-2xl">
             {/* رأس القائمة */}
@@ -231,7 +236,7 @@ export function Sidebar({ view, onNavigate }: SidebarProps) {
                 </div>
               </div>
               <button
-                onClick={() => setMobileOpen(false)}
+                onClick={() => onMobileOpenChange(false)}
                 className="p-2 rounded-lg hover:bg-slate-800 transition-colors"
               >
                 <X size={20} />
@@ -252,11 +257,13 @@ export function Sidebar({ view, onNavigate }: SidebarProps) {
             </div>
 
             {/* تذييل القائمة */}
-            <div className="px-4 py-3 border-t border-slate-800">
-              <p className="text-xs text-slate-500">
-                الكاشير: <span className="text-slate-300 font-semibold">{settings.cashierName || 'غير محدد'}</span>
-              </p>
-            </div>
+            <SidebarFooterActions
+              collapsed={false}
+              cashierName={settings.cashierName}
+              onChangeMyPin={onChangeMyPin}
+              onResetCashierPin={onResetCashierPin}
+              onLogout={onLogout}
+            />
           </aside>
         </div>
       )}
@@ -265,7 +272,7 @@ export function Sidebar({ view, onNavigate }: SidebarProps) {
       <aside
         className={`${
           collapsed ? 'w-[72px]' : 'w-[280px]'
-        } hidden lg:flex bg-slate-900 text-white flex-col flex-shrink-0 h-full transition-all duration-300 ease-in-out border-l border-slate-800`}
+        } hidden md:flex bg-slate-900 text-white flex-col flex-shrink-0 h-full transition-all duration-300 ease-in-out border-l border-slate-800`}
       >
         {/* رأس القائمة */}
         <div className={`flex items-center gap-3 px-4 py-4 border-b border-slate-800 ${
@@ -304,20 +311,75 @@ export function Sidebar({ view, onNavigate }: SidebarProps) {
           ))}
         </div>
 
-        {/* تذييل القائمة */}
-        <div className={`px-4 py-3 border-t border-slate-800 transition-all duration-200 ${
-          collapsed ? 'text-center' : ''
-        }`}>
-          <p className={`text-xs text-slate-500 ${collapsed ? 'hidden' : 'block'}`}>
-            الكاشير: <span className="text-slate-300 font-semibold">{settings.cashierName || 'غير محدد'}</span>
-          </p>
-          {collapsed && (
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 mx-auto flex items-center justify-center text-white font-bold shadow-lg shadow-blue-600/30">
-              {settings.cashierName?.charAt(0).toUpperCase() || '?'}
-            </div>
-          )}
-        </div>
+        <SidebarFooterActions
+          collapsed={collapsed}
+          cashierName={settings.cashierName}
+          onChangeMyPin={onChangeMyPin}
+          onResetCashierPin={onResetCashierPin}
+          onLogout={onLogout}
+        />
       </aside>
     </>
+  );
+}
+
+function SidebarFooterActions({
+  collapsed,
+  cashierName,
+  onChangeMyPin,
+  onResetCashierPin,
+  onLogout,
+}: {
+  collapsed: boolean;
+  cashierName?: string;
+  onChangeMyPin: () => void;
+  onResetCashierPin: () => void;
+  onLogout: () => void;
+}) {
+  if (collapsed) {
+    return (
+      <div className="px-2 py-3 border-t border-slate-800 flex flex-col items-center gap-2">
+        <button
+          onClick={onChangeMyPin}
+          title="تغيير رمز المدير"
+          className="w-10 h-10 rounded-xl bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center"
+        >
+          <KeyRound size={18} />
+        </button>
+        <button
+          onClick={onLogout}
+          title="تسجيل الخروج"
+          className="w-10 h-10 rounded-xl bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center"
+        >
+          <LogOut size={18} />
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="px-3 py-3 border-t border-slate-800 space-y-2">
+      <p className="text-xs text-slate-500 px-1">
+        الكاشير: <span className="text-slate-300 font-semibold">{cashierName || 'غير محدد'}</span>
+      </p>
+      <button
+        onClick={onChangeMyPin}
+        className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 bg-slate-800/60 hover:bg-slate-800"
+      >
+        <KeyRound size={16} /> تغيير رمز المدير
+      </button>
+      <button
+        onClick={onResetCashierPin}
+        className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 bg-slate-800/60 hover:bg-slate-800"
+      >
+        <ShieldCheck size={16} /> تعيين رمز الكاشير
+      </button>
+      <button
+        onClick={onLogout}
+        className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-red-300 bg-red-500/10 hover:bg-red-500/20"
+      >
+        <LogOut size={16} /> تسجيل الخروج
+      </button>
+    </div>
   );
 }
