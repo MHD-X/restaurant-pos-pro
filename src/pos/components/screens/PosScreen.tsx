@@ -875,7 +875,7 @@ function TopButton({ icon: Icon, label, onClick, variant, disabled }: {
           : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
       }`}
     >
-      <Icon size={14} className="sm:size-16" />
+      <Icon size={14} className="sm:w-4 sm:h-4" />
       <span className="hidden xs:inline">{label}</span>
     </button>
   );
@@ -895,7 +895,7 @@ function OrderTypeButton({ active, icon: Icon, label, onClick }: {
         active ? 'bg-blue-600 text-white shadow-md' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
       }`}
     >
-      <Icon size={14} className="sm:size-18" />
+      <Icon size={14} className="sm:w-[18px] sm:h-[18px]" />
       <span className="hidden xs:inline">{label}</span>
     </button>
   );
