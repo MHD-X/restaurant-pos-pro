@@ -24,6 +24,17 @@ import { BackupScreen } from '@/pos/components/screens/BackupScreen';
 
 const VIEW_KEY = 'pos.view';
 
+/** تنبيه ظاهر عند فشل حفظ البيانات محليًا (امتلاء التخزين). */
+function StorageBanner() {
+  const { storageError } = useSettings();
+  if (!storageError) return null;
+  return (
+    <div className="bg-red-600 text-white text-xs sm:text-sm px-3 py-2 flex-shrink-0">
+      {storageError}
+    </div>
+  );
+}
+
 function ScreenSwitch({ view }: { view: View }) {
   switch (view) {
     case 'products':
@@ -100,6 +111,8 @@ function AdminLayout() {
           </button>
           <span className="text-sm font-bold">لوحة المدير</span>
         </header>
+
+        <StorageBanner />
 
         <main className="flex-1 min-h-0 overflow-hidden">
           <ScreenSwitch view={view} />
