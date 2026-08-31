@@ -1,31 +1,56 @@
-import { useState } from 'react';
-import { ChefHat, Delete, LogIn } from 'lucide-react';
-import { useAuth } from '@/pos/context/AuthContext';
+import { useCallback, useEffect, useState } from 'react';
+import { ChefHat, Delete, LogIn, ShieldAlert } from 'lucide-react';
+import { useAuth, AUTH_LIMITS } from '@/pos/context/AuthContext';
 import { useSettings } from '@/pos/context/SettingsContext';
 
 export function LoginScreen() {
-  const { login } = useAuth();
+  const { login, lockRemaining, failedAttempts } = useAuth();
   const { settings } = useSettings();
   const [entry, setEntry] = useState('');
   const [error, setError] = useState('');
 
-  const push = (d: string) => {
-    if (entry.length >= 6) return;
-    setError('');
-    setEntry(entry + d);
-  };
+  const locked = lockRemaining > 0;
 
-  const submit = (value = entry) => {
-    if (value.length < 4) {
-      setError('أدخل رمزًا من 4 أرقام على الأقل');
-      return;
-    }
-    const role = login(value);
-    if (!role) {
-      setError('الرمز غير صحيح');
-      setEntry('');
-    }
-  };
+  const push = useCallback(
+    (d: string) => {
+      if (locked) return;
+      setEntry((prev) => (prev.length >= 6 ? prev : prev + d));
+      setError('');
+    },
+    [locked],
+  );
+
+  const submit = useCallback(
+    (value: string) => {
+      if (locked) return;
+      if (value.length < 4) {
+        setError('أدخل رمزًا من 4 أرقام على الأقل');
+        return;
+      }
+      const role = login(value);
+      if (!role) {
+        setError('الرمز غير صحيح');
+        setEntry('');
+      }
+    },
+    [locked, login],
+  );
+
+  /* دعم لوحة المفاتيح الفعلية — أسرع بكثير للكاشير على جهاز مكتبي */
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key >= '0' && e.key <= '9') push(e.key);
+      else if (e.key === 'Backspace') {
+        setEntry((prev) => prev.slice(0, -1));
+        setError('');
+      } else if (e.key === 'Enter') setEntry((prev) => (submit(prev), prev));
+      else if (e.key === 'Escape') setEntry('');
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [push, submit]);
+
+  const remainingTries = AUTH_LIMITS.MAX_ATTEMPTS - failedAttempts;
 
   return (
     <div
@@ -54,13 +79,21 @@ export function LoginScreen() {
           ))}
         </div>
 
-        {error && (
-          <p className="text-center text-sm font-semibold text-red-600 mb-3 animate-shake">
-            {error}
-          </p>
+        {locked ? (
+          <div className="mb-3 flex items-center justify-center gap-2 rounded-2xl bg-red-50 px-3 py-2 text-sm font-semibold text-red-700">
+            <ShieldAlert size={16} />
+            تم القفل مؤقتًا — أعد المحاولة بعد {lockRemaining} ثانية
+          </div>
+        ) : (
+          error && (
+            <p className="text-center text-sm font-semibold text-red-600 mb-3 animate-shake">
+              {error}
+              {failedAttempts > 0 && ` — تبقّى ${remainingTries} محاولات`}
+            </p>
+          )
         )}
 
-        <div className="grid grid-cols-3 gap-2 sm:gap-3" dir="ltr">
+        <div className={`grid grid-cols-3 gap-2 sm:gap-3 ${locked ? 'opacity-50 pointer-events-none' : ''}`} dir="ltr">
           {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((d) => (
             <button
               key={d}
@@ -87,13 +120,17 @@ export function LoginScreen() {
             0
           </button>
           <button
-            onClick={() => submit()}
+            onClick={() => submit(entry)}
             className="h-14 rounded-2xl bg-blue-600 text-white hover:bg-blue-700 active:scale-95 transition-all flex items-center justify-center"
             aria-label="دخول"
           >
             <LogIn size={22} />
           </button>
         </div>
+
+        <p className="mt-5 text-center text-[11px] text-slate-400">
+          يمكنك استخدام لوحة المفاتيح مباشرة • خروج تلقائي بعد {AUTH_LIMITS.IDLE_MINUTES} دقيقة خمول
+        </p>
       </div>
     </div>
   );
