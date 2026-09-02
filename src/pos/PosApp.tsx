@@ -175,6 +175,8 @@ function CashierLayout() {
         </div>
       </header>
 
+      <StorageBanner />
+
       <main className="flex-1 min-h-0 overflow-hidden">
         {view === 'pos' ? <PosScreen /> : <ShiftsScreen />}
       </main>
