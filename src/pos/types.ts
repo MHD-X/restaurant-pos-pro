@@ -28,6 +28,40 @@ export interface ReceiptSettings {
   vatPercent: number;
 }
 
+export interface ReceiptDesign {
+  /** الهامش الأيمن/الأيسر بالمليمتر */
+  marginX: number;
+  marginTop: number;
+  marginBottom: number;
+  /** حجم الخط الأساسي بالبكسل */
+  baseFontSize: number;
+  titleFontSize: number;
+  totalFontSize: number;
+  lineHeight: number;
+  showLogo: boolean;
+  showRestaurantName: boolean;
+  showSubtitle: boolean;
+  showPaymentMethod: boolean;
+  showFooter: boolean;
+  showItemsCount: boolean;
+}
+
+export const DEFAULT_RECEIPT_DESIGN: ReceiptDesign = {
+  marginX: 3,
+  marginTop: 3,
+  marginBottom: 6,
+  baseFontSize: 11,
+  titleFontSize: 16,
+  totalFontSize: 14,
+  lineHeight: 1.45,
+  showLogo: true,
+  showRestaurantName: true,
+  showSubtitle: true,
+  showPaymentMethod: true,
+  showFooter: true,
+  showItemsCount: true,
+};
+
 export type OrderType = 'dine-in' | 'takeaway' | 'delivery' | 'talabat';
 
 export type PaymentMethod =
@@ -240,6 +274,7 @@ export interface Settings {
   branding: Branding;
   printers: PrinterSettings;
   receiptSettings: ReceiptSettings;
+  receiptDesign: ReceiptDesign;
   financials: FinancialSettings;
   categories: Category[];
   products: Product[];
