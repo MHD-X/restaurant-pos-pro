@@ -1,22 +1,36 @@
 import { useState } from 'react';
 import { useSettings } from '@/pos/context/SettingsContext';
-import type { ReceiptSettings } from '@/pos/types';
+import type { ReceiptDesign, ReceiptSettings } from '@/pos/types';
+import { DEFAULT_RECEIPT_DESIGN } from '@/pos/types';
 import { Button, Input, Field, TextArea } from '@/pos/components/ui/Modal';
 import { Save, Check, Receipt as ReceiptIcon, Eye, EyeOff } from 'lucide-react';
 
 export function ReceiptSettingsScreen() {
   const { settings, update } = useSettings();
   const [cfg, setCfg] = useState<ReceiptSettings>(settings.receiptSettings);
+  const [design, setDesign] = useState<ReceiptDesign>({
+    ...DEFAULT_RECEIPT_DESIGN,
+    ...settings.receiptDesign,
+  });
   const [saved, setSaved] = useState(false);
 
   const handleSave = () => {
-    update((prev) => ({ ...prev, receiptSettings: cfg }));
+    update((prev) => ({ ...prev, receiptSettings: cfg, receiptDesign: design }));
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
 
   const toggle = (key: keyof ReceiptSettings) => {
     setCfg({ ...cfg, [key]: !cfg[key] });
+  };
+
+  const toggleDesign = (key: keyof ReceiptDesign) => {
+    setDesign({ ...design, [key]: !design[key] });
+  };
+
+  const num = (key: keyof ReceiptDesign, value: string) => {
+    const v = Number(value);
+    if (Number.isFinite(v)) setDesign({ ...design, [key]: v });
   };
 
   return (
@@ -77,7 +91,49 @@ export function ReceiptSettingsScreen() {
             <ToggleRow label="اسم الكاشير" enabled={cfg.showCashierName} onToggle={() => toggle('showCashierName')} />
             <ToggleRow label="الطوابع الزمنية (التاريخ والوقت)" enabled={cfg.showTimestamps} onToggle={() => toggle('showTimestamps')} />
             <ToggleRow label="نوع الطلب (صالة / سفري)" enabled={cfg.showOrderType} onToggle={() => toggle('showOrderType')} />
+            <ToggleRow label="الشعار (اللوجو)" enabled={design.showLogo} onToggle={() => toggleDesign('showLogo')} />
+            <ToggleRow label="اسم المطعم" enabled={design.showRestaurantName} onToggle={() => toggleDesign('showRestaurantName')} />
+            <ToggleRow label="العبارة الفرعية" enabled={design.showSubtitle} onToggle={() => toggleDesign('showSubtitle')} />
+            <ToggleRow label="طريقة الدفع" enabled={design.showPaymentMethod} onToggle={() => toggleDesign('showPaymentMethod')} />
+            <ToggleRow label="عدد الأصناف" enabled={design.showItemsCount} onToggle={() => toggleDesign('showItemsCount')} />
+            <ToggleRow label="رسالة التذييل" enabled={design.showFooter} onToggle={() => toggleDesign('showFooter')} />
           </div>
+        </div>
+
+        {/* مصمّم الفاتورة: الهوامش والخطوط */}
+        <div className="bg-white rounded-2xl shadow-sm p-6 mb-4">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-bold text-gray-800">الهوامش وأحجام الخطوط</h2>
+            <Button variant="secondary" onClick={() => setDesign({ ...DEFAULT_RECEIPT_DESIGN })}>
+              استعادة الافتراضي
+            </Button>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <Field label="الهامش الجانبي (mm)">
+              <Input type="number" min={0} max={10} step={0.5} value={design.marginX} onChange={(e) => num('marginX', e.target.value)} />
+            </Field>
+            <Field label="الهامش العلوي (mm)">
+              <Input type="number" min={0} max={20} step={0.5} value={design.marginTop} onChange={(e) => num('marginTop', e.target.value)} />
+            </Field>
+            <Field label="الهامش السفلي (mm)">
+              <Input type="number" min={0} max={30} step={0.5} value={design.marginBottom} onChange={(e) => num('marginBottom', e.target.value)} />
+            </Field>
+            <Field label="حجم الخط الأساسي (px)">
+              <Input type="number" min={8} max={20} value={design.baseFontSize} onChange={(e) => num('baseFontSize', e.target.value)} />
+            </Field>
+            <Field label="حجم خط العنوان (px)">
+              <Input type="number" min={10} max={30} value={design.titleFontSize} onChange={(e) => num('titleFontSize', e.target.value)} />
+            </Field>
+            <Field label="حجم خط الإجمالي (px)">
+              <Input type="number" min={10} max={26} value={design.totalFontSize} onChange={(e) => num('totalFontSize', e.target.value)} />
+            </Field>
+            <Field label="تباعد الأسطر">
+              <Input type="number" min={1} max={2.5} step={0.05} value={design.lineHeight} onChange={(e) => num('lineHeight', e.target.value)} />
+            </Field>
+          </div>
+          <p className="text-xs text-gray-500 mt-3">
+            النصوص الطويلة تُلَف تلقائيًا على سطر جديد بدل قصّها على الطابعة الحرارية (80mm).
+          </p>
         </div>
 
         <div className="flex justify-end">

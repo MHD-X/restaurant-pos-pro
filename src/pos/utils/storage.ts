@@ -1,5 +1,5 @@
 import type { Settings, OrderType, AuditEntry, UserRole } from '@/pos/types';
-import { DEFAULT_PER_ORDER_TYPE } from '@/pos/types';
+import { DEFAULT_PER_ORDER_TYPE, DEFAULT_PERMISSIONS, DEFAULT_RECEIPT_DESIGN } from '@/pos/types';
 import { demoCategories, demoProducts, demoTags, demoZones } from '@/pos/utils/demoData';
 
 export const STORAGE_KEY = 'foodics_pos_settings_v2';
@@ -29,6 +29,8 @@ export const defaultSettings: Settings = {
     currency: 'EGP',
     vatPercent: 14,
   },
+  receiptDesign: { ...DEFAULT_RECEIPT_DESIGN },
+  permissions: { ...DEFAULT_PERMISSIONS },
   financials: {
     serviceChargeType: 'percent',
     serviceChargeValue: 10,
@@ -77,6 +79,8 @@ export function loadSettings(): Settings {
       branding: { ...defaultSettings.branding, ...parsed.branding },
       printers: { ...defaultSettings.printers, ...parsed.printers },
       receiptSettings: { ...defaultSettings.receiptSettings, ...parsed.receiptSettings },
+      receiptDesign: { ...DEFAULT_RECEIPT_DESIGN, ...parsed.receiptDesign },
+      permissions: { ...DEFAULT_PERMISSIONS, ...parsed.permissions },
       financials: {
         ...defaultSettings.financials,
         ...parsed.financials,

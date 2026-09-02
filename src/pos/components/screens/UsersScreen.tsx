@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useSettings } from '@/pos/context/SettingsContext';
-import type { User, UserRole } from '@/pos/types';
+import type { Permissions, User, UserRole } from '@/pos/types';
 import { uid } from '@/pos/utils/storage';
 import { Modal, Button, Input, Field, Select } from '@/pos/components/ui/Modal';
 import { ConfirmDialog } from '@/pos/components/ui/ConfirmDialog';
@@ -48,6 +48,13 @@ export function UsersScreen() {
     setDeleteUser(null);
   };
 
+  const togglePerm = (key: keyof Permissions) => {
+    update((prev) => ({
+      ...prev,
+      permissions: { ...prev.permissions, [key]: !prev.permissions[key] },
+    }));
+  };
+
   const toggleActive = (user: User) => {
     update((prev) => ({
       ...prev,
@@ -67,6 +74,34 @@ export function UsersScreen() {
           <div>
             <h1 className="text-2xl font-bold text-gray-800">إدارة المستخدمين</h1>
             <p className="text-sm text-gray-500 mt-1">المستخدمون والأدوار ورموز PIN</p>
+          </div>
+        </div>
+
+        {/* صلاحيات الكاشير */}
+        <div className="bg-white rounded-2xl shadow-sm p-6 mb-4">
+          <div className="flex items-center gap-2 mb-4">
+            <Shield size={18} className="text-indigo-600" />
+            <h2 className="text-lg font-bold text-gray-800">صلاحيات الكاشير</h2>
+          </div>
+          <div className="space-y-3">
+            <PermRow
+              label="إلغاء طلب مفتوح"
+              hint="عند الإيقاف لن يظهر زر الإلغاء في واجهة الكاشير"
+              enabled={settings.permissions.cashierCanVoidOrder}
+              onToggle={() => togglePerm('cashierCanVoidOrder')}
+            />
+            <PermRow
+              label="حذف طلب من الطلبات النشطة"
+              hint="حذف الطلبات يبقى للمدير فقط افتراضيًا"
+              enabled={settings.permissions.cashierCanDeleteOrder}
+              onToggle={() => togglePerm('cashierCanDeleteOrder')}
+            />
+            <PermRow
+              label="منح خصم"
+              hint="التحكم في من يستطيع تخفيض قيمة الفاتورة"
+              enabled={settings.permissions.cashierCanDiscount}
+              onToggle={() => togglePerm('cashierCanDiscount')}
+            />
           </div>
         </div>
 
@@ -235,5 +270,28 @@ function UserEditModal({ user, onClose, onSave }: {
         </label>
       </div>
     </Modal>
+  );
+}
+
+function PermRow({ label, hint, enabled, onToggle }: {
+  label: string;
+  hint: string;
+  enabled: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-3 p-3 bg-gray-50 rounded-xl">
+      <div>
+        <p className="text-sm font-semibold text-gray-700">{label}</p>
+        <p className="text-xs text-gray-500 mt-0.5">{hint}</p>
+      </div>
+      <button
+        onClick={onToggle}
+        aria-label={label}
+        className={`w-12 h-6 rounded-full transition-colors relative flex-shrink-0 ${enabled ? 'bg-green-500' : 'bg-gray-300'}`}
+      >
+        <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all ${enabled ? 'right-0.5' : 'right-6'}`} />
+      </button>
+    </div>
   );
 }

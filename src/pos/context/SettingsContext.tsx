@@ -9,6 +9,7 @@ import {
 } from 'react';
 import type { Settings } from '@/pos/types';
 import { loadSettings, saveSettings, STORAGE_KEY } from '@/pos/utils/storage';
+import { loadSettingsFromDb, saveSettingsToDb } from '@/pos/utils/db';
 
 interface SettingsContextValue {
   settings: Settings;
@@ -24,21 +25,44 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<Settings>(() => loadSettings());
   const [storageError, setStorageError] = useState<string | null>(null);
   const writingRef = useRef(false);
+  const hydratedRef = useRef(false);
 
-  /* حفظ مؤجَّل (debounce) لتقليل الكتابة على القرص أثناء الإدخال السريع */
+  /* ترقية التخزين: نقرأ من IndexedDB عند الإقلاع (أكبر سعة من localStorage) */
+  useEffect(() => {
+    let cancelled = false;
+    loadSettingsFromDb()
+      .then((fromDb) => {
+        if (!cancelled && fromDb) setSettings((prev) => ({ ...prev, ...fromDb }));
+      })
+      .finally(() => {
+        hydratedRef.current = true;
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  /* حفظ مؤجَّل (debounce): IndexedDB هو المصدر الأساسي، وlocalStorage نسخة سريعة */
   useEffect(() => {
     const t = setTimeout(() => {
-      try {
-        writingRef.current = true;
-        saveSettings(settings);
-        setStorageError(null);
-      } catch {
-        setStorageError('تعذّر حفظ البيانات — مساحة التخزين ممتلئة. صدّر نسخة احتياطية وامسح الطلبات القديمة.');
-      } finally {
-        setTimeout(() => {
-          writingRef.current = false;
-        }, 0);
-      }
+      void (async () => {
+        const dbOk = await saveSettingsToDb(settings);
+        try {
+          writingRef.current = true;
+          saveSettings(settings);
+          setStorageError(null);
+        } catch {
+          setStorageError(
+            dbOk
+              ? null
+              : 'تعذّر حفظ البيانات — مساحة التخزين ممتلئة. صدّر نسخة احتياطية وامسح الطلبات القديمة.',
+          );
+        } finally {
+          setTimeout(() => {
+            writingRef.current = false;
+          }, 0);
+        }
+      })();
     }, 250);
     return () => clearTimeout(t);
   }, [settings]);

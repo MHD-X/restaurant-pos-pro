@@ -1,4 +1,5 @@
-import type { Order, Settings } from '@/pos/types';
+import type { Order, ReceiptDesign, Settings } from '@/pos/types';
+import { DEFAULT_RECEIPT_DESIGN } from '@/pos/types';
 
 export interface PrintResult {
   success: boolean;
@@ -79,17 +80,20 @@ export function printHtml(html: string, onDone?: () => void): PrintResult {
   }
 }
 
-const baseStyles = (widthMm: number) => `
+const baseStyles = (widthMm: number, d: ReceiptDesign = DEFAULT_RECEIPT_DESIGN) => `
   @page { size: ${widthMm}mm auto; margin: 0; }
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   html, body { width: ${widthMm}mm; background: #fff; }
   body {
-    padding: 3mm 3mm 6mm;
+    padding: ${d.marginTop}mm ${d.marginX}mm ${d.marginBottom}mm;
     font-family: 'Courier New', 'Tahoma', monospace;
+    font-size: ${d.baseFontSize}px;
+    line-height: ${d.lineHeight};
     color: #000;
     direction: rtl;
   }
-`;
+  /* منع قص النصوص الطويلة على الطابعة الحرارية */
+  body, td, div, span { word-wrap: break-word; overflow-wrap: anywhere; white-space: normal; }
 
 const PAYMENT_LABELS: Record<string, string> = {
   cash: 'نقدي / Cash',
@@ -110,6 +114,7 @@ const ORDER_TYPE_AR: Record<string, string> = {
 /** فاتورة العميل — قالب واحد للمعاينة والطباعة */
 export function buildReceiptHtml(order: Order, settings: Settings, widthMm = 80): string {
   const r = settings.receiptSettings;
+  const d: ReceiptDesign = { ...DEFAULT_RECEIPT_DESIGN, ...settings.receiptDesign };
   const branding = settings.branding;
   const name = r.restaurantName || branding.name || 'مطعم أسايل';
   const currency = r.currency || 'ر.س';
@@ -147,31 +152,31 @@ export function buildReceiptHtml(order: Order, settings: Settings, widthMm = 80)
   return `<!DOCTYPE html>
 <html lang="ar" dir="rtl"><head><meta charset="UTF-8"><title>فاتورة #${order.number}</title>
 <style>
-${baseStyles(widthMm)}
+${baseStyles(widthMm, d)}
 .header { text-align:center; border-bottom:2px solid #000; padding-bottom:6px; margin-bottom:6px; }
 .logo { max-width:${widthMm - 25}mm; height:auto; display:block; margin:0 auto 4px; }
-.title { font-size:16px; font-weight:bold; }
+.title { font-size:${d.titleFontSize}px; font-weight:bold; }
 .sub { font-size:10px; color:#333; margin-top:2px; }
 .badge { border:2px solid #000; border-radius:4px; text-align:center; font-weight:bold; font-size:15px; padding:4px; margin:6px 0; }
 .preview { margin:6px 0; text-align:center; font-weight:bold; font-size:12px; border:2px dashed #000; padding:4px; }
 .info-line { display:flex; justify-content:space-between; font-size:10px; padding:1px 0; }
 table { width:100%; border-collapse:collapse; margin:6px 0; }
-td { padding:3px 0; font-size:11px; border-bottom:1px dotted #bbb; }
+td { padding:3px 0; font-size:${d.baseFontSize}px; border-bottom:1px dotted #bbb; }
 tr.th td { font-weight:bold; border-bottom:2px solid #000; }
 tr.mod td { font-size:10px; color:#444; border-bottom:none; }
 tr.note td { font-size:10px; border-bottom:none; }
 .right{text-align:right}.center{text-align:center}.left{text-align:left}
 .totals { border-top:2px solid #000; padding-top:4px; }
-.total-line { display:flex; justify-content:space-between; font-size:11px; padding:1px 0; }
-.total-line.bold { font-size:14px; font-weight:bold; border-top:1px solid #000; margin-top:3px; padding-top:3px; }
+.total-line { display:flex; justify-content:space-between; font-size:${d.baseFontSize}px; padding:1px 0; }
+.total-line.bold { font-size:${d.totalFontSize}px; font-weight:bold; border-top:1px solid #000; margin-top:3px; padding-top:3px; }
 .payment { text-align:center; font-weight:bold; font-size:12px; border:1px solid #000; border-radius:4px; padding:4px; margin:6px 0; }
 .footer { text-align:center; border-top:2px dashed #000; padding-top:6px; margin-top:6px; font-size:10px; }
 </style></head>
 <body>
   <div class="header">
-    ${branding.logo ? `<img class="logo" src="${esc(branding.logo)}" alt="logo" />` : ''}
-    <div class="title">${esc(name)}</div>
-    ${r.subtitle ? `<div class="sub">${esc(r.subtitle)}</div>` : ''}
+    ${d.showLogo && branding.logo ? `<img class="logo" src="${esc(branding.logo)}" alt="logo" />` : ''}
+    ${d.showRestaurantName ? `<div class="title">${esc(name)}</div>` : ''}
+    ${d.showSubtitle && r.subtitle ? `<div class="sub">${esc(r.subtitle)}</div>` : ''}
     ${r.address ? `<div class="sub">${esc(r.address)}</div>` : ''}
     ${r.phones ? `<div class="sub">${esc(r.phones)}</div>` : ''}
     ${r.taxId ? `<div class="sub">الرقم الضريبي: ${esc(r.taxId)}</div>` : ''}
@@ -208,10 +213,10 @@ tr.note td { font-size:10px; border-bottom:none; }
     ${line('الإجمالي / Total', money(order.total), 'bold')}
   </div>
 
-  ${order.paymentMethod ? `<div class="payment">طريقة الدفع: ${esc(PAYMENT_LABELS[order.paymentMethod] ?? order.paymentMethod)}</div>` : ''}
+  ${d.showPaymentMethod && order.paymentMethod ? `<div class="payment">طريقة الدفع: ${esc(PAYMENT_LABELS[order.paymentMethod] ?? order.paymentMethod)}</div>` : ''}
   <div class="footer">
-    <div>عدد الأصناف / Items: ${itemCount}</div>
-    ${r.footer ? `<div style="margin-top:4px;font-weight:bold;">${esc(r.footer)}</div>` : '<div style="margin-top:4px;font-weight:bold;">شكراً لزيارتكم 🤍</div>'}
+    ${d.showItemsCount ? `<div>عدد الأصناف / Items: ${itemCount}</div>` : ''}
+    ${!d.showFooter ? '' : r.footer ? `<div style="margin-top:4px;font-weight:bold;">${esc(r.footer)}</div>` : '<div style="margin-top:4px;font-weight:bold;">شكراً لزيارتكم 🤍</div>'}
   </div>
 </body></html>`;
 }

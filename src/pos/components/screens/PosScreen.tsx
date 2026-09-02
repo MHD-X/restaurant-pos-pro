@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useSettings } from '@/pos/context/SettingsContext';
+import { useAuth } from '@/pos/context/AuthContext';
 import type { CartItem, OrderType, PaymentMethod, Order, ActiveOrder, CustomerInfo } from '@/pos/types';
 import { ORDER_TYPE_LABELS } from '@/pos/types';
 import { uid, formatMoney, getProductPrice, addAuditEntry } from '@/pos/utils/storage';
@@ -19,6 +20,13 @@ import { printHtml, buildReceiptHtml } from '@/pos/utils/print';
 
 export function PosScreen() {
   const { settings, update } = useSettings();
+  const { role } = useAuth();
+  const perms = settings.permissions;
+  const isAdmin = role === 'admin';
+  /* صلاحيات الحذف/الإلغاء/الخصم: المدير دائمًا، والكاشير حسب إعدادات الصلاحيات */
+  const canVoid = isAdmin || perms.cashierCanVoidOrder;
+  const canDelete = isAdmin || perms.cashierCanDeleteOrder;
+  const canDiscount = isAdmin || perms.cashierCanDiscount;
   const [activeCategoryId, setActiveCategoryId] = useState<string>(
     settings.categories[0]?.id ?? ''
   );
@@ -443,8 +451,12 @@ export function PosScreen() {
               }} 
             />
             <TopButton icon={ChefHat} label="مطبخ" onClick={handlePrintKitchen} />
-            <TopButton icon={XCircle} label="إلغاء" variant="danger" onClick={() => cart.length > 0 ? setConfirmVoidOpen(true) : voidOrder()} disabled={!currentOrderId} />
-            <TopButton icon={Percent} label="خصم" onClick={() => { setDiscountValue(String(orderDiscount || '')); setDiscountModalOpen(true); }} disabled={!currentOrderId} />
+            {canVoid && (
+              <TopButton icon={XCircle} label="إلغاء" variant="danger" onClick={() => cart.length > 0 ? setConfirmVoidOpen(true) : voidOrder()} disabled={!currentOrderId} />
+            )}
+            {canDiscount && (
+              <TopButton icon={Percent} label="خصم" onClick={() => { setDiscountValue(String(orderDiscount || '')); setDiscountModalOpen(true); }} disabled={!currentOrderId} />
+            )}
             <TopButton icon={StickyNote} label="ملاحظات" onClick={() => { if (cart.length > 0) { setNoteItemIndex(cart.length - 1); setNoteText(''); setNoteModalOpen(true); } }} disabled={!currentOrderId} />
             <TopButton icon={Tag} label="وسوم" onClick={() => setTagsModalOpen(true)} disabled={!currentOrderId} />
             <TopButton icon={MoreHorizontal} label="المزيد" onClick={() => setMoreModalOpen(true)} />
@@ -582,7 +594,7 @@ export function PosScreen() {
               </span>
             )}
           </div>
-          {cart.length > 0 && (
+          {cart.length > 0 && canVoid && (
             <button
               onClick={() => voidOrder()}
               className="text-red-500 hover:bg-red-50 p-1 rounded-lg transition-colors"
@@ -762,9 +774,11 @@ export function PosScreen() {
                   </div>
                   <p className="text-xs text-gray-500">{o.items.length} صنف · {formatMoney(o.items.reduce((s, i) => s + i.price * i.qty, 0))}</p>
                 </button>
-                <button onClick={() => deleteActiveOrder(o.id)} className="p-2 rounded-lg text-red-500 hover:bg-red-50 transition-colors">
-                  <Trash2 size={16} />
-                </button>
+                {canDelete && (
+                  <button onClick={() => deleteActiveOrder(o.id)} className="p-2 rounded-lg text-red-500 hover:bg-red-50 transition-colors">
+                    <Trash2 size={16} />
+                  </button>
+                )}
               </div>
             ))}
           </div>
