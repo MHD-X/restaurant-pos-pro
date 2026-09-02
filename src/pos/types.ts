@@ -28,6 +28,21 @@ export interface ReceiptSettings {
   vatPercent: number;
 }
 
+export interface Permissions {
+  /** هل يستطيع الكاشير إلغاء طلب مفتوح؟ */
+  cashierCanVoidOrder: boolean;
+  /** هل يستطيع الكاشير حذف طلب من قائمة الطلبات النشطة؟ */
+  cashierCanDeleteOrder: boolean;
+  /** هل يستطيع الكاشير منح خصم؟ */
+  cashierCanDiscount: boolean;
+}
+
+export const DEFAULT_PERMISSIONS: Permissions = {
+  cashierCanVoidOrder: false,
+  cashierCanDeleteOrder: false,
+  cashierCanDiscount: false,
+};
+
 export interface ReceiptDesign {
   /** الهامش الأيمن/الأيسر بالمليمتر */
   marginX: number;
@@ -275,6 +290,7 @@ export interface Settings {
   printers: PrinterSettings;
   receiptSettings: ReceiptSettings;
   receiptDesign: ReceiptDesign;
+  permissions: Permissions;
   financials: FinancialSettings;
   categories: Category[];
   products: Product[];
