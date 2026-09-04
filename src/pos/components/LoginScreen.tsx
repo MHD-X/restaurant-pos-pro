@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ChefHat, Delete, LogIn, ShieldAlert } from 'lucide-react';
 import { useAuth, AUTH_LIMITS } from '@/pos/context/AuthContext';
 import { useSettings } from '@/pos/context/SettingsContext';
@@ -7,6 +7,8 @@ export function LoginScreen() {
   const { login, lockRemaining, failedAttempts } = useAuth();
   const { settings } = useSettings();
   const [entry, setEntry] = useState('');
+  const entryRef = useRef('');
+  entryRef.current = entry;
   const [error, setError] = useState('');
 
   const locked = lockRemaining > 0;
@@ -43,7 +45,7 @@ export function LoginScreen() {
       else if (e.key === 'Backspace') {
         setEntry((prev) => prev.slice(0, -1));
         setError('');
-      } else if (e.key === 'Enter') setEntry((prev) => (submit(prev), prev));
+      } else if (e.key === 'Enter') submit(entryRef.current);
       else if (e.key === 'Escape') setEntry('');
     };
     window.addEventListener('keydown', onKey);

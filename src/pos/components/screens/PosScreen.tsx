@@ -527,7 +527,16 @@ export function PosScreen() {
               }`}
               style={activeCategoryId === cat.id ? { backgroundColor: cat.color } : {}}
             >
-              {cat.name}
+              <span className="flex items-center gap-1.5">
+                {cat.image && (
+                  <img
+                    src={cat.image}
+                    alt=""
+                    className="w-5 h-5 sm:w-6 sm:h-6 rounded-md object-cover flex-shrink-0"
+                  />
+                )}
+                {cat.name}
+              </span>
             </button>
           ))}
         </div>

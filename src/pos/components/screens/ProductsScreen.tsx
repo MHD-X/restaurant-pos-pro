@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from 'react';
+import { useRef, useState, useMemo } from 'react';
 import { useSettings } from '@/pos/context/SettingsContext';
 import type { Product, Category, ProductPrice } from '@/pos/types';
 import { CATEGORY_COLORS } from '@/pos/types';
@@ -6,7 +6,7 @@ import { uid, formatMoney, fileToDataUrl, getProductPrice } from '@/pos/utils/st
 import { Modal, Button, Input, Select, Field } from '@/pos/components/ui/Modal';
 import { ConfirmDialog } from '@/pos/components/ui/ConfirmDialog';
 import {
-  Plus, Pencil, Trash2, Utensils, ImagePlus, Search, FolderPlus, X,
+  Plus, Pencil, Trash2, Utensils, ImagePlus, Search, FolderPlus, X, GripVertical, Image as ImageIcon,
 } from 'lucide-react';
 
 export function ProductsScreen() {
@@ -18,6 +18,22 @@ export function ProductsScreen() {
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
   const [deleteProduct, setDeleteProduct] = useState<Product | null>(null);
   const [deleteCategory, setDeleteCategory] = useState<Category | null>(null);
+  const [editCategory, setEditCategory] = useState<Category | null>(null);
+  const [dragCatId, setDragCatId] = useState<string | null>(null);
+
+  /* إعادة ترتيب الفئات بالسحب والإفلات */
+  const reorderCategories = (fromId: string, toId: string) => {
+    if (fromId === toId) return;
+    update((prev) => {
+      const list = [...prev.categories];
+      const from = list.findIndex((c) => c.id === fromId);
+      const to = list.findIndex((c) => c.id === toId);
+      if (from < 0 || to < 0) return prev;
+      const [moved] = list.splice(from, 1);
+      list.splice(to, 0, moved);
+      return { ...prev, categories: list };
+    });
+  };
 
   const filtered = useMemo(() => {
     let list = settings.products;
@@ -223,18 +239,43 @@ export function ProductsScreen() {
         </div>
 
         <div className="mt-6">
-          <h3 className="text-sm font-bold text-gray-600 mb-3">الفئات</h3>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-bold text-gray-600">الفئات</h3>
+            <span className="text-xs text-gray-400">اسحب البطاقة لإعادة الترتيب</span>
+          </div>
           <div className="flex flex-wrap gap-2">
             {settings.categories.map((c) => (
               <div
                 key={c.id}
-                className="flex items-center gap-2 px-3 py-2 rounded-xl text-white text-sm font-semibold"
+                draggable
+                onDragStart={() => setDragCatId(c.id)}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={() => {
+                  if (dragCatId) reorderCategories(dragCatId, c.id);
+                  setDragCatId(null);
+                }}
+                onDragEnd={() => setDragCatId(null)}
+                className={`flex items-center gap-2 pl-2 pr-3 py-2 rounded-xl text-white text-sm font-semibold cursor-grab active:cursor-grabbing transition-opacity ${
+                  dragCatId === c.id ? 'opacity-50' : ''
+                }`}
                 style={{ backgroundColor: c.color }}
               >
+                <GripVertical size={14} className="opacity-70" />
+                {c.image ? (
+                  <img src={c.image} alt="" className="w-7 h-7 rounded-lg object-cover bg-white/20" />
+                ) : null}
                 {c.name}
+                <button
+                  onClick={() => setEditCategory(c)}
+                  className="hover:bg-white/20 rounded p-0.5 transition-colors"
+                  title="تعديل الفئة"
+                >
+                  <Pencil size={14} />
+                </button>
                 <button
                   onClick={() => setDeleteCategory(c)}
                   className="hover:bg-white/20 rounded p-0.5 transition-colors"
+                  title="حذف الفئة"
                 >
                   <X size={14} />
                 </button>
@@ -255,10 +296,17 @@ export function ProductsScreen() {
         />
       )}
 
-      {categoryModalOpen && (
+      {(categoryModalOpen || editCategory) && (
         <CategoryEditModal
-          onClose={() => setCategoryModalOpen(false)}
-          onSave={saveCategory}
+          category={editCategory}
+          onClose={() => {
+            setCategoryModalOpen(false);
+            setEditCategory(null);
+          }}
+          onSave={(c) => {
+            saveCategory(c);
+            setEditCategory(null);
+          }}
         />
       )}
 
@@ -498,20 +546,49 @@ function PriceField({ label, value, onChange }: {
   );
 }
 
-function CategoryEditModal({ onClose, onSave }: {
+function CategoryEditModal({ category, onClose, onSave }: {
+  category?: Category | null;
   onClose: () => void;
   onSave: (c: Category) => void;
 }) {
-  const [name, setName] = useState('');
-  const [color, setColor] = useState(CATEGORY_COLORS[0]);
+  const [name, setName] = useState(category?.name ?? '');
+  const [color, setColor] = useState(category?.color ?? CATEGORY_COLORS[0]);
+  const [image, setImage] = useState<string>(category?.image ?? '');
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  /* تصغير الصورة قبل الحفظ حتى لا تمتلئ مساحة التخزين */
+  const pickImage = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const max = 160;
+        const scale = Math.min(1, max / Math.max(img.width, img.height));
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        setImage(canvas.toDataURL('image/jpeg', 0.8));
+      };
+      img.src = String(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handleSave = () => {
     if (!name.trim()) return;
-    onSave({ id: uid('cat'), name: name.trim(), color });
+    onSave({
+      id: category?.id ?? uid('cat'),
+      name: name.trim(),
+      color,
+      ...(image ? { image } : {}),
+    });
   };
 
   return (
-    <Modal open onClose={onClose} title="فئة جديدة" size="sm"
+    <Modal open onClose={onClose} title={category ? 'تعديل الفئة' : 'فئة جديدة'} size="sm"
       footer={
         <>
           <Button variant="secondary" onClick={onClose}>إلغاء</Button>
@@ -523,6 +600,40 @@ function CategoryEditModal({ onClose, onSave }: {
         <Field label="اسم الفئة">
           <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="مثال: مشروبات" autoFocus />
         </Field>
+
+        <Field label="صورة الفئة (اختياري)">
+          <div className="flex items-center gap-3">
+            <div className="w-16 h-16 rounded-xl bg-gray-100 overflow-hidden flex items-center justify-center flex-shrink-0">
+              {image ? (
+                <img src={image} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <ImageIcon size={22} className="text-gray-400" />
+              )}
+            </div>
+            <div className="flex flex-col gap-2">
+              <Button variant="secondary" onClick={() => fileRef.current?.click()}>
+                اختيار صورة
+              </Button>
+              {image && (
+                <button onClick={() => setImage('')} className="text-xs font-semibold text-red-600">
+                  إزالة الصورة
+                </button>
+              )}
+            </div>
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) pickImage(f);
+                e.target.value = '';
+              }}
+            />
+          </div>
+        </Field>
+
         <Field label="اللون">
           <div className="flex flex-wrap gap-2">
             {CATEGORY_COLORS.map((c) => (

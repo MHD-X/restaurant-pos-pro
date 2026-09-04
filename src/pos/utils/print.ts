@@ -18,8 +18,32 @@ const esc = (v: unknown) =>
  * هذا يتجنب حاصرات النوافذ المنبثقة، وينتظر تحميل الصور والخطوط
  * قبل استدعاء print() حتى لا تخرج ورقة فارغة.
  */
-export function printHtml(html: string, onDone?: () => void): PrintResult {
+interface PosDesktopBridge {
+  isDesktop: boolean;
+  printHtml: (html: string, printerName?: string, silent?: boolean) => Promise<PrintResult>;
+  listPrinters: () => Promise<{ name: string; isDefault: boolean }[]>;
+  printRawNetwork: (host: string, port: number, dataBase64: string) => Promise<PrintResult>;
+}
+
+/** جسر تطبيق سطح المكتب (Electron) إن وُجد — يتيح الطباعة الصامتة. */
+export function getDesktopBridge(): PosDesktopBridge | null {
+  if (typeof window === 'undefined') return null;
+  const bridge = (window as unknown as { posDesktop?: PosDesktopBridge }).posDesktop;
+  return bridge?.isDesktop ? bridge : null;
+}
+
+export function printHtml(html: string, onDone?: () => void, printerName?: string): PrintResult {
   if (typeof window === 'undefined') return { success: false, error: 'الطباعة متاحة في المتصفح فقط' };
+
+  /* داخل تطبيق سطح المكتب: طباعة صامتة مباشرة على الطابعة الحرارية */
+  const desktop = getDesktopBridge();
+  if (desktop) {
+    void desktop
+      .printHtml(html, printerName, true)
+      .catch(() => undefined)
+      .finally(() => onDone?.());
+    return { success: true };
+  }
 
   try {
     const iframe = document.createElement('iframe');
@@ -94,6 +118,9 @@ const baseStyles = (widthMm: number, d: ReceiptDesign = DEFAULT_RECEIPT_DESIGN) 
   }
   /* منع قص النصوص الطويلة على الطابعة الحرارية */
   body, td, div, span { word-wrap: break-word; overflow-wrap: anywhere; white-space: normal; }
+`;
+
+
 
 const PAYMENT_LABELS: Record<string, string> = {
   cash: 'نقدي / Cash',
