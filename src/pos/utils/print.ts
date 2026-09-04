@@ -94,6 +94,9 @@ const baseStyles = (widthMm: number, d: ReceiptDesign = DEFAULT_RECEIPT_DESIGN) 
   }
   /* منع قص النصوص الطويلة على الطابعة الحرارية */
   body, td, div, span { word-wrap: break-word; overflow-wrap: anywhere; white-space: normal; }
+`;
+
+
 
 const PAYMENT_LABELS: Record<string, string> = {
   cash: 'نقدي / Cash',
