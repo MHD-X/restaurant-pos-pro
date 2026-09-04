@@ -6,7 +6,7 @@ import { uid, formatMoney, fileToDataUrl, getProductPrice } from '@/pos/utils/st
 import { Modal, Button, Input, Select, Field } from '@/pos/components/ui/Modal';
 import { ConfirmDialog } from '@/pos/components/ui/ConfirmDialog';
 import {
-  Plus, Pencil, Trash2, Utensils, ImagePlus, Search, FolderPlus, X,
+  Plus, Pencil, Trash2, Utensils, ImagePlus, Search, FolderPlus, X, GripVertical, Image as ImageIcon,
 } from 'lucide-react';
 
 export function ProductsScreen() {
