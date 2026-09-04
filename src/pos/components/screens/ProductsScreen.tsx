@@ -1,4 +1,4 @@
-import { useRef, useState, useMemo, useRef } from 'react';
+import { useRef, useState, useMemo } from 'react';
 import { useSettings } from '@/pos/context/SettingsContext';
 import type { Product, Category, ProductPrice } from '@/pos/types';
 import { CATEGORY_COLORS } from '@/pos/types';
